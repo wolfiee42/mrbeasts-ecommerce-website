@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
-import { createInventory } from "@/controllers";
+import { createInventory, getInventorybyId, getInventoryDetails, updateInventory } from "@/controllers";
 
 dotenv.config();
 
@@ -16,9 +16,13 @@ app.get("/health", (_req, res) => {
     res.status(200).json({ status: "UP" });
 });
 
+app.get("/inventories/:id/details", getInventoryDetails);
 
+app.get("/inventories/:id", getInventorybyId);
 
-app.post("/inventories", createInventory)
+app.put("/inventories/:id", updateInventory);
+
+app.post("/inventories", createInventory);
 
 
 
