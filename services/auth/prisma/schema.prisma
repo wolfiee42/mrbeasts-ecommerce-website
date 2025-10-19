@@ -27,7 +27,7 @@ enum UserStatus {
 
 model User {
   id                String             @id @default(cuid())
-  username          String
+  name              String
   email             String             @unique
   password          String
   role              UserRole           @default(USER)
