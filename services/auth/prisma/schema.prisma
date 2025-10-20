@@ -56,7 +56,7 @@ model LoginHistory {
 
 enum VerificationStatus {
   PENDING
-  VERIFIED
+  USED
   EXPIRED
 }
 
