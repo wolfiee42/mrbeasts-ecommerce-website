@@ -33,7 +33,7 @@ app.use((err, _req, res, _next) => {
     res.status(500).json({ error: "Internal Server Error" });
 });
 
-const port = process.env.PORT || 4003;
+const port = process.env.PORT || 4004;
 const servicename = process.env.SERVICE_NAME || "user-service";
 
 app.listen(port, () => {
