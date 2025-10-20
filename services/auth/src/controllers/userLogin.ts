@@ -64,7 +64,7 @@ const userLogin = async (req: Request, res: Response, next: NextFunction) => {
         }
 
         // check if the user is verified
-        if (existUser.verified) {
+        if (!existUser.verified) {
             await createLoginHistory({
                 userId: existUser.id,
                 ipAddress: ipAddress as string,

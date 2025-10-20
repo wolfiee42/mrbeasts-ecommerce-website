@@ -5,9 +5,9 @@ import prisma from "@/prisma";
 
 const sendEmail = async (req: Request, res: Response, next: NextFunction) => {
     try {
-
         // validate the request body
         const parsedBody = emailCreateSchema.safeParse(req.body);
+
         if (!parsedBody.success) {
             return res.status(400).json({ error: parsedBody.error.format() });
         }
@@ -20,6 +20,7 @@ const sendEmail = async (req: Request, res: Response, next: NextFunction) => {
             to: recipient,
             subject,
             text: body,
+            source: source || 'email-service',
         }
 
 
@@ -37,7 +38,7 @@ const sendEmail = async (req: Request, res: Response, next: NextFunction) => {
                 recipient,
                 subject,
                 body,
-                source,
+                source: source || 'email-service',
             }
         })
         res.status(201).json({

@@ -5,6 +5,6 @@ export const emailCreateSchema = z.object({
     recipient: z.string().email(),
     subject: z.string(),
     body: z.string(),
-    source: z.string().email().optional(),
+    source: z.string().optional(),
 })
 

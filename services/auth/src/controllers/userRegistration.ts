@@ -1,10 +1,9 @@
+import { NextFunction, Request, Response } from "express";
 import prisma from "@/prisma";
 import { userCreateSchema } from "@/schemas";
-import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import axios from "axios";
 import { EMAIL_SERVICE_URL, USER_SERVICE_URL } from "@/config";
-import { VerificationType } from "@prisma/client";
 
 const generateVerificationCode = () => {
 
@@ -59,8 +58,11 @@ const userRegistration = async (req: Request, res: Response, next: NextFunction)
             }
         });
 
+        console.log("User created", user);
+
+
         // create user in user service
-        const { data: userData } = await axios.post(`${USER_SERVICE_URL}/users`, {
+        await axios.post(`${USER_SERVICE_URL}/users`, {
             authUserId: user.id,
             name: user.name,
             email: user.email,
@@ -69,23 +71,23 @@ const userRegistration = async (req: Request, res: Response, next: NextFunction)
         // generate verification code
         const code = generateVerificationCode();
 
-        // send verification email
-        await axios.post(`${EMAIL_SERVICE_URL}/emails/send`, {
-            recipient: user.email,
-            subject: "Email Verification",
-            body: `Your verification code is ${code}`,
-            source: 'user-registration',
-        });
-
         // store verification code in database
         await prisma.verificationCode.create({
             data: {
                 userId: user.id,
                 code,
-                type: VerificationType.ACCOUNT_VERIFICATION,
                 expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24), // 24 hours
             }
         })
+
+        // send verification email
+        await axios.post(`${EMAIL_SERVICE_URL}/emails/send`, {
+            sender: "saifalislam2022@gmail.com",
+            recipient: user.email,
+            subject: "Email Verification",
+            body: `Your verification code is ${code}`,
+            source: 'user-registration',
+        });
 
         res.status(201).json({
             user,
