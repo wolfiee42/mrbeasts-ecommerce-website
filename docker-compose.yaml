@@ -29,6 +29,13 @@ services:
     ports:
       - "5050:80"
       - "5051:443"
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://localhost:80/misc/ping"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
 
   mailhog:
     image: mailhog/mailhog
@@ -42,4 +49,5 @@ services:
 volumes:
   postgres:
   mailhog:
+  pgadmin:
 
