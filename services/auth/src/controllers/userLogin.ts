@@ -42,12 +42,6 @@ const userLogin = async (req: Request, res: Response, next: NextFunction) => {
             where: { email: parsedBody.data.email }
         });
         if (!existUser) {
-            await createLoginHistory({
-                userId: "Guest",
-                ipAddress: ipAddress as string,
-                userAgent: userAgent as string,
-                attempt: LoginAttempt.FAILED,
-            });
             return res.status(400).json({ error: "User not found" });
         }
 
