@@ -6,12 +6,16 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import { configureRoutes } from "./utils";
 
+// accessing environment variables
 dotenv.config();
 
 const app = express();
 
+// security middleware
 app.use(helmet());
 
+
+// rate limiting middleware
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     limit: 100, // Limit each IP to 100 requests per `windowMs`
@@ -24,7 +28,9 @@ const limiter = rateLimit({
 
 app.use('/api', limiter);
 
+// logging middleware
 app.use(morgan("dev"));
+
 app.use(express.json());
 app.use(cors());
 
