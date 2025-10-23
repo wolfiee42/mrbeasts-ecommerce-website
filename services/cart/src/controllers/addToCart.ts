@@ -19,9 +19,10 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
         //check session id is exist
         let sessionId = req.headers["x-cart-session-id"] as string || null;
 
+        // check it expired or not
         if (sessionId) {
-            // check it expired or not
             const exist = await redis.exists(`sessions:${sessionId}`)
+           
             if (!exist) {
                 sessionId = null;
             }
@@ -38,6 +39,25 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
             // store it in headers
             res.setHeader("x-cart-session-id", sessionId)
         }
+
+        // add item to the cart
+        await redis.hset(
+            `cart:${sessionId}`,
+            parsedBody.data.productId,
+            JSON.stringify({
+                quantity: parsedBody.data.quantity,
+                inventoryId: parsedBody.data.inventoryId,
+            })
+        )
+
+        return res.status(201).json({
+            message: "Item added to cart.",
+            sessionId
+        });
+
+
+        // TODO: check inventory for availability
+        // TODO: update the inventory
 
     } catch (error) {
         next(error);
