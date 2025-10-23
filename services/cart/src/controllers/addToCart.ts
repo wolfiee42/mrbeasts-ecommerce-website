@@ -1,8 +1,9 @@
-import { CART_TTL } from "@/config";
+import { CART_TTL, INVENTORY_SERVICE_URL } from "@/config";
 import redis from "@/redis";
 import { CartItemSchema } from "@/schema";
 import { Request, Response, NextFunction } from "express";
 import { v4 as uuid } from "uuid";
+import axios from "axios";
 
 
 const addToCart = async (req: Request, res: Response, next: NextFunction) => {
@@ -22,7 +23,7 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
         // check it expired or not
         if (sessionId) {
             const exist = await redis.exists(`sessions:${sessionId}`)
-           
+
             if (!exist) {
                 sessionId = null;
             }
@@ -40,7 +41,17 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
             res.setHeader("x-cart-session-id", sessionId)
         }
 
+        // check inventory for availability
+        const { data: inventory } = await axios.get(`${INVENTORY_SERVICE_URL}/inventories/${parsedBody.data.inventoryId}`)
+        if (Number(inventory.quantity) < parsedBody.data.quantity || inventory.quantity === 0) {
+            return res.status(400).json({
+                message: "Inventory not available",
+            });
+        }
         // add item to the cart
+        // TODO: check if the product already exists in the cart
+        // LOGIC: parsedBody.data.quantity - wxistingQuantity
+
         await redis.hset(
             `cart:${sessionId}`,
             parsedBody.data.productId,
@@ -50,14 +61,19 @@ const addToCart = async (req: Request, res: Response, next: NextFunction) => {
             })
         )
 
+        // TODO: update the inventory
+        await axios.put(`${INVENTORY_SERVICE_URL}/inventories/${parsedBody.data.inventoryId}`, {
+            quantity: Number(parsedBody.data.quantity),
+            actionType: "OUT"
+        })
+
+
         return res.status(201).json({
             message: "Item added to cart.",
             sessionId
         });
 
 
-        // TODO: check inventory for availability
-        // TODO: update the inventory
 
     } catch (error) {
         next(error);
