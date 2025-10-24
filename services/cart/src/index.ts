@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
-import { addToCart, getMyCart } from "./controllers";
+import { addToCart, clearCart, getMyCart } from "./controllers";
 import "./events/onKeyExpires";
 
 
@@ -23,7 +23,8 @@ app.get("/health", (_req, res) => {
 
 //routes
 app.post('/cart/add-to-cart', addToCart);
-app.get('/cart/me', getMyCart)
+app.get('/cart/me', getMyCart);
+app.get('/cart/clear', clearCart);
 
 // 404 handler
 app.use((_req, res) => {
