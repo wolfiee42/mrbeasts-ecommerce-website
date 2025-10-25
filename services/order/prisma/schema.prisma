@@ -33,7 +33,7 @@ model Order {
   status     OrderStatus @default(PENDING)
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
-  OrderItems  OrderItem[]
+  OrderItems OrderItem[]
 }
 
 model OrderItem {

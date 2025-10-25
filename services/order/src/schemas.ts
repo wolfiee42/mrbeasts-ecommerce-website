@@ -6,3 +6,9 @@ export const orderSchema = z.object({
     userEmail: z.string(),
     cartSessionId: z.string()
 })
+
+export const CartItemSchema = z.object({
+    quantity: z.number(),
+    inventoryId: z.string(),
+    productId: z.string(),
+})
