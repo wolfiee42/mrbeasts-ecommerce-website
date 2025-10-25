@@ -1,4 +1,3 @@
-
 import { NextFunction, Request, Response } from "express";
 import { orderSchema, CartItemSchema } from '@/schemas'
 import axios from "axios";
@@ -94,3 +93,6 @@ const checkout = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+
+
+export default checkout;
