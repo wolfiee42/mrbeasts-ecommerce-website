@@ -5,6 +5,7 @@ import { CART_SERVICE_URL, EMAIL_SERVICE_URL, PRODUCT_SERVICE_URL } from "@/conf
 import { z } from "zod";
 import prisma from "@/prisma";
 import sendToQueue from "@/queue";
+// import { DEFAULT_SENDER_EMAIL } from "@/config";
 
 
 const checkout = async (req: Request, res: Response, next: NextFunction) => {
@@ -23,7 +24,7 @@ const checkout = async (req: Request, res: Response, next: NextFunction) => {
             }
         })
 
-        const cartItems = z.array(CartItemSchema).safeParse(cartData.items);
+        const cartItems = z.array(CartItemSchema).safeParse(cartData.data);
         if (!cartItems.success) {
             return res.status(400).json({ errors: cartItems.error.format() });
         }
@@ -71,24 +72,24 @@ const checkout = async (req: Request, res: Response, next: NextFunction) => {
         })
 
         // invoke cart service
-        await axios.get(`${CART_SERVICE_URL}/cart/clear`, {
-            headers: {
-                "x-cart-session-id": parsedBody.data.cartSessionId
-            }
-        })
+        // await axios.get(`${CART_SERVICE_URL}/cart/clear`, {
+        //     headers: {
+        //         "x-cart-session-id": parsedBody.data.cartSessionId
+        //     }
+        // })
 
         // invoke email service
-        await axios.post(`${EMAIL_SERVICE_URL}/emails/send`, {
-            sender: process.env.DEFAULT_SENDER_EMAIL,
-            recipient: parsedBody.data.userEmail,
-            subject: "Order Confirmation",
-            body: `Your order has been placed successfully. Your order id is ${order.id}.`,
-            source: "order-service",
-        })
+        // await axios.post(`${EMAIL_SERVICE_URL}/emails/send`, {
+        //     sender: DEFAULT_SENDER_EMAIL,
+        //     recipient: parsedBody.data.userEmail,
+        //     subject: "Order Confirmation",
+        //     body: `Your order has been placed successfully. Your order id is ${order.id}.`,
+        //     source: "order-service",
+        // })
 
 
-        // sendToQueue('send-email', JSON.stringify(order));
-        // sendToQueue('cart-clear', JSON.stringify({ cartSessionId: parsedBody.data.cartSessionId }));
+        sendToQueue('send-email', JSON.stringify(order));
+        sendToQueue('cart-clear', JSON.stringify({ cartSessionId: parsedBody.data.cartSessionId }));
 
         return res.status(201).json({ data: order })
 

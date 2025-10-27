@@ -8,7 +8,7 @@ const sendToQueue = async (queueName: string, message: string) => {
     const channel = await connection.createChannel();
 
     const exchange = "order";
-    await channel.assertExchange(exchange, "direct", { durable: false });
+    await channel.assertExchange(exchange, "direct", { durable: true });
 
     channel.publish(exchange, queueName, Buffer.from(message));
     console.log(`Sent ${message} to ${queueName}`);
