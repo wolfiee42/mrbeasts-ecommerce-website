@@ -4,6 +4,7 @@ import axios from "axios";
 import { CART_SERVICE_URL, EMAIL_SERVICE_URL, PRODUCT_SERVICE_URL } from "@/config";
 import { z } from "zod";
 import prisma from "@/prisma";
+import sendToQueue from "@/queue";
 
 
 const checkout = async (req: Request, res: Response, next: NextFunction) => {
@@ -70,7 +71,6 @@ const checkout = async (req: Request, res: Response, next: NextFunction) => {
         })
 
         // invoke cart service
-
         await axios.get(`${CART_SERVICE_URL}/cart/clear`, {
             headers: {
                 "x-cart-session-id": parsedBody.data.cartSessionId
@@ -86,8 +86,11 @@ const checkout = async (req: Request, res: Response, next: NextFunction) => {
             source: "order-service",
         })
 
-        return res.status(201).json({ data: order })
 
+        // sendToQueue('send-email', JSON.stringify(order));
+        // sendToQueue('cart-clear', JSON.stringify({ cartSessionId: parsedBody.data.cartSessionId }));
+
+        return res.status(201).json({ data: order })
 
     } catch (error) {
         next(error);

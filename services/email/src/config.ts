@@ -6,3 +6,5 @@ export const transporter = nodemailer.createTransport({
 })
 
 export const defaultSenderEmail = process.env.DEFAULT_SENDER_EMAIL || "saifalislam2022@gmail.com";
+
+export const QUEUE_URL = process.env.QUEUE_URL;
