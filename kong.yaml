@@ -1,0 +1,346 @@
+_format_version: "3.0"
+_transform: true
+
+# Global plugins (optional - can be applied to all services)
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Language
+        - Content-Language
+        - Content-Type
+        - Authorization
+      exposed_headers:
+        - X-Auth-Token
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
+
+# Services Configuration
+
+services:
+  # ============================================
+  # Product Service - Port 4001
+  # ============================================
+  - name: product-service
+    url: http://host.docker.internal:4001
+    tags:
+      - microservice
+      - product
+    routes:
+      - name: product-list
+        paths:
+          - /api/products
+        methods:
+          - GET
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: product-detail
+        paths:
+          - /api/products/(?<id>[^/]+)$
+        methods:
+          - GET
+          - PUT
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Inventory Service - Port 4002
+  # ============================================
+  - name: inventory-service
+    url: http://host.docker.internal:4002
+    tags:
+      - microservice
+      - inventory
+    routes:
+      - name: inventory-detail
+        paths:
+          - /api/inventories/(?<id>[^/]+)$
+        methods:
+          - GET
+          - PUT
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: inventory-details-endpoint
+        paths:
+          - /api/inventories/(?<id>[^/]+)/details
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: inventory-create
+        paths:
+          - /api/inventories
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Auth Service - Port 4003
+  # ============================================
+  - name: auth-service
+    url: http://host.docker.internal:4003
+    tags:
+      - microservice
+      - auth
+    routes:
+      - name: auth-registration
+        paths:
+          - /api/auth/registration
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 100
+              policy: local
+      - name: auth-login
+        paths:
+          - /api/auth/login
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 100
+              policy: local
+      - name: auth-verify-token
+        paths:
+          - /api/auth/verify-token
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 60
+              hour: 1000
+              policy: local
+      - name: auth-verify-email
+        paths:
+          - /api/auth/verify-email
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 10
+              hour: 100
+              policy: local
+
+  # ============================================
+  # User Service - Port 4004
+  # ============================================
+  - name: user-service
+    url: http://host.docker.internal:4004
+    tags:
+      - microservice
+      - user
+    routes:
+      - name: user-detail
+        paths:
+          - /api/users/(?<id>[^/]+)$
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: user-create
+        paths:
+          - /api/users
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Cart Service - Port 4006
+  # ============================================
+  - name: cart-service
+    url: http://host.docker.internal:4006
+    tags:
+      - microservice
+      - cart
+    routes:
+      - name: cart-add
+        paths:
+          - /api/cart/add-to-cart
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: cart-me
+        paths:
+          - /api/cart/me
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: cart-clear
+        paths:
+          - /api/cart/clear
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Order Service - Port 4007
+  # ============================================
+  - name: order-service
+    url: http://host.docker.internal:4007
+    tags:
+      - microservice
+      - order
+    routes:
+      - name: order-checkout
+        paths:
+          - /api/orders/checkout
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 50
+              hour: 500
+              policy: local
+      - name: order-list
+        paths:
+          - /api/orders
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+      - name: order-detail
+        paths:
+          - /api/orders/(?<id>[^/]+)$
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Email Service - Port 4005 
+  # ============================================
+  - name: email-service
+    url: http://host.docker.internal:4005
+    tags:
+      - microservice
+      - email
+    routes:
+      - name: email-send
+        paths:
+          - /api/emails/send
+        methods:
+          - POST
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 20
+              hour: 200
+              policy: local
+      - name: email-list
+        paths:
+          - /api/emails
+        methods:
+          - GET
+        strip_path: false
+        plugins:
+          - name: rate-limiting
+            config:
+              minute: 100
+              hour: 1000
+              policy: local
+
+  # ============================================
+  # Health Check Routes (Optional)
+  # ============================================
+  - name: health-check-service
+    url: http://host.docker.internal:4001
+    tags:
+      - health
+    routes:
+      - name: health-check
+        paths:
+          - /health
+        methods:
+          - GET
+        strip_path: false
